@@ -28,9 +28,17 @@ async function fetchAllMovies() {
 }
 
 app.get("/movies", async (req, res) => {
-  let result = await fetchAllMovies();
+  try {
+    let result = await fetchAllMovies();
 
-  res.status(200).json(result);
+    if (result.movies.length === 0) {
+      return res.json(404).json({ message: "No Movie Found." });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 });
 
 async function fetchMoviesByGenre(genre) {
@@ -40,9 +48,18 @@ async function fetchMoviesByGenre(genre) {
 }
 
 app.get("/movies/genre/:genre", async (req, res) => {
-  let genre = req.params.genre;
-  let results = await fetchMoviesByGenre(genre);
-  res.status(200).json(results);
+  try {
+    let genre = req.params.genre;
+    let results = await fetchMoviesByGenre(genre);
+
+    if (results.movies.length === 0) {
+      return res.status(404).json({ message: "No Movie Found" });
+    }
+
+    res.status(200).json(results);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 });
 
 async function fetchMovieById(id) {
@@ -52,9 +69,18 @@ async function fetchMovieById(id) {
 }
 
 app.get("/movies/details/:id", async (req, res) => {
-  let id = req.params.id;
-  let result = await fetchMovieById(id);
-  res.status(200).json(result);
+  try {
+    let id = req.params.id;
+    let result = await fetchMovieById(id);
+
+    if (result.movie.length === 0) {
+      res.status(404).json({ message: "No Movie Found" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    return res.status.json({ error: error.message });
+  }
 });
 
 async function fetchMovieByReleaseYear(releaseYear) {
@@ -64,9 +90,18 @@ async function fetchMovieByReleaseYear(releaseYear) {
 }
 
 app.get("/movies/release_year/:year", async (req, res) => {
-  let releaseYear = req.params.year;
-  let result = await fetchMovieByReleaseYear(releaseYear);
-  res.status(200).json(result);
+  try {
+    let releaseYear = req.params.year;
+    let result = await fetchMovieByReleaseYear(releaseYear);
+
+    if (result.movie.length === 0) {
+      res.status(404).json({ message: "Movie Not Found" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
