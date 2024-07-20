@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 // YOUR ENPOINTS GO HERE
 
 async function fetchAllMovies() {
-  let query = "SELECT * FROM movies";
+  let query = "SELECT id, title, release_year FROM movies";
   let response = await db.all(query, []);
   return { movies: response };
 }
@@ -32,80 +32,18 @@ app.get("/movies", async (req, res) => {
     let result = await fetchAllMovies();
 
     if (result.movies.length === 0) {
-      return res.json(404).json({ message: "No Movie Found." });
+      return res.status(404).json({ message: "No Movies Found" });
     }
 
-    res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-async function fetchMoviesByGenre(genre) {
-  let query = "SELECT * FROM movies WHERE genre = ?";
-  let response = await db.all(query, [genre]);
-  return { movies: response };
-}
-
-app.get("/movies/genre/:genre", async (req, res) => {
-  try {
-    let genre = req.params.genre;
-    let results = await fetchMoviesByGenre(genre);
-
-    if (results.movies.length === 0) {
-      return res.status(404).json({ message: "No Movie Found" });
-    }
-
-    res.status(200).json(results);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-async function fetchMovieById(id) {
-  let query = "SELECT * FROM movies WHERE id = ?";
-  let response = await db.all(query, [id]);
-  return { movie: response };
-}
-
-app.get("/movies/details/:id", async (req, res) => {
-  try {
-    let id = req.params.id;
-    let result = await fetchMovieById(id);
-
-    if (result.movie.length === 0) {
-      res.status(404).json({ message: "No Movie Found" });
-    }
-
-    res.status(200).json(result);
-  } catch (error) {
-    return res.status.json({ error: error.message });
-  }
-});
-
-async function fetchMovieByReleaseYear(releaseYear) {
-  let query = "SELECT * FROM movies WHERE release_year = ?";
-  let response = await db.all(query, [releaseYear]);
-  return { movie: response };
-}
-
-app.get("/movies/release_year/:year", async (req, res) => {
-  try {
-    let releaseYear = req.params.year;
-    let result = await fetchMovieByReleaseYear(releaseYear);
-
-    if (result.movie.length === 0) {
-      res.status(404).json({ message: "Movie Not Found" });
-    }
-
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-async function filterByActor(actor) {
-  let query = "SELECT * FROM movies WHERE actor = ?";
+async function fetchMoviesByActor(actor) {
+  let query =
+    "SELECT id, title, actor, release_year FROM movies WHERE actor = ?";
   let response = await db.all(query, [actor]);
   return { movies: response };
 }
@@ -113,19 +51,21 @@ async function filterByActor(actor) {
 app.get("/movies/actor/:actor", async (req, res) => {
   try {
     let actor = req.params.actor;
-    let result = await filterByActor(actor);
-
+    let result = await fetchMoviesByActor(actor);
     if (result.movies.length === 0) {
-      return res.status(404).json({ message: "No Movie Found" });
+      return res
+        .status(404)
+        .json({ message: "No Movies Found for actor: " + actor });
     }
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-async function filterByDirector(director) {
-  let query = "SELECT * FROM movies WHERE director = ?";
+async function fetchMoviesByDirector(director) {
+  let query =
+    "SELECT id, title, director, release_year FROM movies WHERE director = ?";
   let response = await db.all(query, [director]);
   return { movies: response };
 }
@@ -133,14 +73,16 @@ async function filterByDirector(director) {
 app.get("/movies/director/:director", async (req, res) => {
   try {
     let director = req.params.director;
-    let result = await filterByDirector(director);
+    let result = await fetchMoviesByDirector(director);
 
     if (result.movies.length === 0) {
-      return res.status(404).json({ message: "No Movie Found" });
+      return res
+        .status(404)
+        .json({ message: "No Movie Found for director: " + director });
     }
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
